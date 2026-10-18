@@ -34,11 +34,9 @@ export default async function AdminStandingsPage({
       .from(standings)
       .orderBy(asc(standings.season), asc(standings.division), asc(standings.position));
   } catch {
-    // БД недоступна на этапе сборки — рендерим пустую страницу
     rows = [];
   }
 
-  // Группируем по season + division
   const groups = new Map<string, typeof rows>();
   for (const row of rows) {
     const key = `${row.season}||${row.division}`;
@@ -272,13 +270,3 @@ export default async function AdminStandingsPage({
     </>
   );
 }
-                    <th className="py-3 pr-3 font-semibold">Команда</th>
-                    <th className="py-3 pr-3 font-semibold">Город</th>
-                    <th className="py-3 pr-3 text-right font-semibold">И</th>
-                    <th className="py-3 pr-3 text-right font-semibold">В</th>
-                    <th className="py-3 pr-3 text-right font-semibold">ВОТ</th>
-                    <th className="py-3 pr-3 text-right font-semibold">ВБ</th>
-                    <th className="py-3 pr-3 text-right font-semibold">ПОТ</th>
-                    <th className="py-3 pr-3 text-right font-semibold">ПБ</th>
-                    <th className="py-3 pr-3 text-right font-semibold">П</th>
-                    <th className="py-3 pr-3 text-right font-semibold">Ш</th>
