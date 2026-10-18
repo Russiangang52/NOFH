@@ -5,14 +5,14 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { matches, media, news, questions } from "@/db/schema";
-import { ensureSeeded } from "@/db/seed";
-import { isBundledPhotoPath, isOwnedPhotoPath } from "@/lib/photos";
 import {
   checkPassword,
   createSession,
   destroySession,
   requireAdmin,
 } from "@/lib/auth";
+
+const MAX_UPLOAD = 4 * 1024 * 1024; // 4 МБ
 
 function str(data: FormData, key: string, max = 4000): string {
   return String(data.get(key) ?? "")
@@ -55,7 +55,6 @@ export async function loginAction(
   _prev: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  if (!process.env.ADMIN_PASSWORD) return { error: "Настройте ADMIN_PASSWORD в переменных окружения хостинга и выполните новый деплой." };
   const password = str(formData, "password", 200);
   if (!password) return { error: "Введите пароль" };
   if (!checkPassword(password)) return { error: "Неверный пароль" };
@@ -68,70 +67,79 @@ export async function logoutAction(): Promise<void> {
   redirect("/admin/login");
 }
 
+/* ------------------------- media ------------------------- */
+
+async function saveUpload(
+  file: File | null,
+): Promise<string | null> {
+  if (!file || file.size === 0) return null;
+  if (file.size > MAX_UPLOAD) {
+    throw new Error("Файл больше 4 МБ — уменьшите размер изображения");
+  }
+  const mime = file.type || "image/jpeg";
+  if (!mime.startsWith("image/")) {
+    throw new Error("Можно загружать только изображения");
+  }
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const [row] = await db
+    .insert(media)
+    .values({
+      filename: (file.name || "upload.jpg").slice(0, 240),
+      mime,
+      data: buffer.toString("base64"),
+    })
+    .returning();
+  return `/api/media/${row.id}`;
+}
+
 /* ------------------------- news ------------------------- */
 
-export type NewsFormState = { error?: string };
-
-export async function saveNewsAction(
-  _previous: NewsFormState,
-  formData: FormData,
-): Promise<NewsFormState> {
+export async function saveNewsAction(formData: FormData): Promise<void> {
   await requireAdmin();
-  const idRaw = str(formData, "id", 20);
-  const id = idRaw ? Number(idRaw) : null;
-  if (id !== null && (!Number.isSafeInteger(id) || id <= 0)) return { error: "Некорректный номер публикации." };
-  const title = str(formData, "title", 300);
-  const body = str(formData, "body", 20000);
-  if (title.length < 3) return { error: "Укажите заголовок не короче трёх символов." };
-  if (body.length < 5) return { error: "Добавьте текст публикации." };
-  const slugInput = str(formData, "slug", 200);
-  let slug = slugInput || slugify(title);
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return { error: "В адресе страницы допустимы латинские буквы, цифры и дефисы." };
-  const image = str(formData, "image", 300);
-  if (image && !isOwnedPhotoPath(image)) return { error: "Выберите фотографию из медиатеки или загрузите файл. Внешние ссылки не используются." };
-  const rawDate = str(formData, "publishedAt", 40);
-  const publishedAt = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(rawDate)
-    ? new Date(`${rawDate}:00+03:00`)
-    : new Date();
-  if (Number.isNaN(publishedAt.getTime())) return { error: "Проверьте дату публикации." };
 
-  let oldSlug: string | undefined;
-  try {
-    await ensureSeeded();
-    const current = id === null ? undefined : (await db.select().from(news).where(eq(news.id, id)).limit(1))[0];
-    if (id !== null && !current) return { error: "Публикация не найдена. Возможно, её удалил другой администратор." };
-    oldSlug = current?.slug;
-    const duplicate = (await db.select({ id: news.id }).from(news).where(eq(news.slug, slug)).limit(1))[0];
-    if (duplicate && duplicate.id !== id) {
-      if (slugInput) return { error: "Такой адрес страницы уже существует. Укажите другой." };
-      slug = `${slug}-${Date.now().toString(36)}`;
-    }
-    if (image && !isBundledPhotoPath(image)) {
-      const photoId = Number(image.split("/").pop());
-      if (!Number.isSafeInteger(photoId)) return { error: "Некорректный файл фотографии." };
-      const [photo] = await db.select({ id: media.id }).from(media).where(eq(media.id, photoId)).limit(1);
-      if (!photo) return { error: "Фотография не найдена в вашей базе. Загрузите её ещё раз." };
-    }
-    const excerpt = str(formData, "excerpt", 600) || body.replace(/\s+/g, " ").slice(0, 200) + (body.length > 200 ? "…" : "");
-    const values = {
-      title, body, slug, excerpt, image,
-      category: str(formData, "category", 20) === "nofh" ? "nofh" : "hockey",
-      tags: str(formData, "tags", 200),
-      featured: formData.get("featured") === "on",
-      views: current?.views ?? 0,
-      publishedAt,
-    };
-    if (id === null) await db.insert(news).values(values);
-    else await db.update(news).set(values).where(eq(news.id, id));
-  } catch (error) {
-    console.error("News could not be saved", error instanceof Error ? error.message : "unknown error");
-    return { error: "Не удалось сохранить материал. Проверьте адрес страницы и соединение с базой, затем повторите попытку. Фотография остаётся в медиатеке." };
+  const id = Number(str(formData, "id", 20));
+  const title = str(formData, "title", 300);
+  if (title.length < 3) throw new Error("Укажите заголовок");
+
+  const body = str(formData, "body", 20000);
+  const excerptInput = str(formData, "excerpt", 600);
+  const excerpt =
+    excerptInput ||
+    `${body.replace(/\s+/g, " ").trim().slice(0, 200)}…`;
+
+  const category = str(formData, "category", 20) === "nofh" ? "nofh" : "hockey";
+  const tags = str(formData, "tags", 200);
+  const slug = str(formData, "slug", 200) || slugify(title);
+  const publishedAtRaw = str(formData, "publishedAt", 40);
+  const publishedAt = publishedAtRaw
+    ? new Date(publishedAtRaw)
+    : new Date();
+
+  const uploaded = await saveUpload(formData.get("imageFile") as File | null);
+  const image = uploaded || str(formData, "image", 300) || "/photos/stock/action-2.jpg";
+  const featured = formData.get("featured") === "on";
+  const viewsRaw = Number(str(formData, "views", 12));
+
+  const values = {
+    slug,
+    title,
+    excerpt,
+    body,
+    category,
+    tags,
+    image,
+    featured,
+    views: Number.isFinite(viewsRaw) && viewsRaw >= 0 ? viewsRaw : 0,
+    publishedAt: Number.isNaN(publishedAt.getTime()) ? new Date() : publishedAt,
+  };
+
+  if (Number.isInteger(id) && id > 0) {
+    await db.update(news).set(values).where(eq(news.id, id));
+  } else {
+    await db.insert(news).values(values);
   }
 
   refreshPublic();
-  revalidatePath("/admin/news");
-  revalidatePath(`/novosti/${slug}`);
-  if (oldSlug && oldSlug !== slug) revalidatePath(`/novosti/${oldSlug}`);
   redirect("/admin/news?saved=1");
 }
 

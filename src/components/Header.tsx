@@ -40,7 +40,7 @@ export default function Header() {
   return (
     <header>
       {/* utility bar */}
-      <div className="hidden bg-ink-900 text-white/70 lg:block">
+      <div className="hidden bg-ink-900 text-white/70 md:block">
         <div className="container-x flex h-10 items-center justify-between text-[11.5px]">
           <p className="tracking-wide">
             Официальный сайт · Региональная общественная организация · с{" "}
@@ -101,7 +101,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden h-full items-stretch gap-7 lg:flex">
+          <nav className="hidden h-full items-stretch gap-7 md:flex">
             {NAV.map((item) => (
               <div key={item.label} className="group relative flex items-stretch">
                 <Link
@@ -144,7 +144,7 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <Link
               href="/federaciya/quest"
-              className="hidden bg-ink-900 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent md:inline-flex"
+              className="hidden bg-ink-900 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent inline-flex"
             >
               Задать вопрос
             </Link>
@@ -152,7 +152,7 @@ export default function Header() {
               type="button"
               aria-label="Меню"
               onClick={() => setOpen((v) => !v)}
-              className="flex h-10 w-10 flex-col items-center justify-center gap-[6px] border border-line lg:hidden"
+              className="flex h-10 w-10 flex-col items-center justify-center gap-[6px] border border-line md:hidden"
             >
               <span
                 className={`h-px w-5 bg-ink-900 transition-all duration-300 ${open ? "translate-y-[7px] rotate-45" : ""}`}
@@ -170,7 +170,7 @@ export default function Header() {
 
       {/* mobile */}
       <div
-        className={`fixed inset-0 z-40 lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-40 md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
       >
         <div
           onClick={() => setOpen(false)}

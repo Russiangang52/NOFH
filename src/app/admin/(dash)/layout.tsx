@@ -7,7 +7,6 @@ import { Logo } from "@/components/ui";
 const NAV = [
   { href: "/admin", label: "Обзор" },
   { href: "/admin/news", label: "Новости" },
-  { href: "/admin/photos", label: "Фотографии" },
   { href: "/admin/matches", label: "Матчи и события" },
   { href: "/admin/questions", label: "Обращения" },
 ];

@@ -59,16 +59,16 @@ export function NewsRowItem({ item, index }: { item: NewsRow; index: number }) {
   return (
     <Link
       href={`/novosti/${item.slug}`}
-      className="group grid grid-cols-[auto_1fr] gap-5 border-b border-line py-5 last:border-b-0"
+      className="group flex flex-col sm:flex-row sm:items-center sm:gap-5 border-b border-line py-4 sm:py-5 last:border-b-0"
     >
-      <span className="tnum pt-1 text-[12px] font-semibold text-line-strong transition-colors group-hover:text-accent">
+      <span className="tnum pt-1 text-[12px] font-semibold text-line-strong transition-colors group-hover:text-accent sm:shrink-0">
         {String(index + 1).padStart(2, "0")}
       </span>
       <span>
         <span className="flex items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-muted-2">
           <time className="tnum">{formatDate(item.publishedAt)}</time>
         </span>
-        <span className="mt-1.5 block text-[15.5px] font-semibold leading-snug text-ink-900 transition-colors group-hover:text-accent">
+        <span className="mt-1.5 sm:mt-0 block text-[15.5px] font-semibold leading-snug text-ink-900 transition-colors group-hover:text-accent">
           {item.title}
         </span>
       </span>

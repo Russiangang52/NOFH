@@ -32,7 +32,7 @@ export default function StandingsBoard({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b border-line">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line overflow-x-auto pb-2 scrollbar-hide">
         {divisions.map((d) => (
           <button
             key={d}

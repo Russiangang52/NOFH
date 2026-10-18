@@ -89,16 +89,14 @@ export default async function HomePage() {
 
       {/* ---------- facts ---------- */}
       <section className="border-b border-line">
-        <div className="container-x grid grid-cols-2 lg:grid-cols-4">
+        <div className="container-x grid gap-8 grid-cols-2 lg:grid-cols-4 border-t border-line pt-10">
           {FACTS.map((f, i) => (
             <Reveal
               key={f.label}
               delay={i * 70}
-              className={`border-line py-9 lg:py-11 ${
-                i % 2 === 1 ? "border-l pl-6" : "lg:border-l-0"
-              } ${i > 1 ? "border-t lg:border-t-0" : ""} ${
-                i === 2 ? "lg:border-l lg:pl-6" : ""
-              } ${i === 3 ? "lg:border-l lg:pl-6" : ""}`}
+              className={`py-9 lg:py-11 border-r border-line last:border-r-0 ${
+                i > 1 ? "border-t border-line lg:border-t-0 pt-10 lg:pt-0" : ""
+              }`}
             >
               <p className="tnum font-display text-[2.4rem] font-semibold leading-none tracking-tight text-ink-900">
                 {f.value}
@@ -122,7 +120,7 @@ export default async function HomePage() {
             />
           </Reveal>
 
-          <div className="mt-12 grid gap-12 lg:grid-cols-[1.55fr_1fr]">
+          <div className="mt-12 grid gap-12 border-t border-line pt-10 lg:grid-cols-[1.55fr_1fr]">
             {lead ? (
               <Reveal>
                 <NewsCard item={lead} size="lg" />
@@ -130,7 +128,7 @@ export default async function HomePage() {
             ) : null}
 
             <Reveal delay={90}>
-              <div className="lg:border-l lg:border-line lg:pl-10">
+              <div className="border-l border-line pl-6 lg:pl-10 pt-6 lg:pt-0">
                 <p className="eyebrow border-b border-line pb-3 text-muted-2">
                   Лента
                 </p>

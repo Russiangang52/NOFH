@@ -59,7 +59,7 @@ export default function PageHero({
           </div>
 
           {aside ? (
-            <div className="animate-soft-in lg:justify-self-end">{aside}</div>
+            <div className="animate-soft-in lg:justify-self-end mb-6 lg:mb-0">{aside}</div>
           ) : null}
         </div>
       </div>

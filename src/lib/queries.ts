@@ -1,11 +1,12 @@
 import { and, asc, desc, eq, gte, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { ensureSeeded } from "@/db/seed";
+import { ensureSeeded, ensureMediaFromPublic } from "@/db/seed";
 import { matches, news, standings } from "@/db/schema";
 import type { MatchRow, NewsRow, StandingRow } from "@/db/schema";
 
 async function ready() {
   await ensureSeeded();
+  await ensureMediaFromPublic();
 }
 
 export async function getNews(options?: {
