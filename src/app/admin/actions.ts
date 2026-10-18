@@ -94,31 +94,44 @@ async function saveUpload(
 
 /* ------------------------- news ------------------------- */
 
-export async function saveNewsAction(formData: FormData): Promise<void> {
+export type NewsFormState = { error?: string };
+
+// Overload 1: для <form action={saveNewsAction}> (без useActionState) — page.tsx
+export async function saveNewsAction(formData: FormData): Promise<void>;
+// Overload 2: для useActionState — NewsEditor.tsx
+export async function saveNewsAction(prev: NewsFormState, formData: FormData): Promise<NewsFormState>;
+// Implementation
+export async function saveNewsAction(
+  prevOrFormData: NewsFormState | FormData,
+  formDataOrUndefined?: FormData,
+): Promise<NewsFormState | void> {
   await requireAdmin();
 
-  const id = Number(str(formData, "id", 20));
-  const title = str(formData, "title", 300);
-  if (title.length < 3) throw new Error("Укажите заголовок");
+  // Универсально определяем FormData в зависимости от способа вызова
+  const data: FormData = formDataOrUndefined ?? (prevOrFormData as FormData);
 
-  const body = str(formData, "body", 20000);
-  const excerptInput = str(formData, "excerpt", 600);
+  const id = Number(str(data, "id", 20));
+  const title = str(data, "title", 300);
+  if (title.length < 3) return { error: "Укажите заголовок (минимум 3 символа)" };
+
+  const body = str(data, "body", 20000);
+  const excerptInput = str(data, "excerpt", 600);
   const excerpt =
     excerptInput ||
     `${body.replace(/\s+/g, " ").trim().slice(0, 200)}…`;
 
-  const category = str(formData, "category", 20) === "nofh" ? "nofh" : "hockey";
-  const tags = str(formData, "tags", 200);
-  const slug = str(formData, "slug", 200) || slugify(title);
-  const publishedAtRaw = str(formData, "publishedAt", 40);
+  const category = str(data, "category", 20) === "nofh" ? "nofh" : "hockey";
+  const tags = str(data, "tags", 200);
+  const slug = str(data, "slug", 200) || slugify(title);
+  const publishedAtRaw = str(data, "publishedAt", 40);
   const publishedAt = publishedAtRaw
     ? new Date(publishedAtRaw)
     : new Date();
 
-  const uploaded = await saveUpload(formData.get("imageFile") as File | null);
-  const image = uploaded || str(formData, "image", 300) || "/photos/stock/action-2.jpg";
-  const featured = formData.get("featured") === "on";
-  const viewsRaw = Number(str(formData, "views", 12));
+  const uploaded = await saveUpload(data.get("imageFile") as File | null);
+  const image = uploaded || str(data, "image", 300) || "/photos/stock/action-2.jpg";
+  const featured = data.get("featured") === "on";
+  const viewsRaw = Number(str(data, "views", 12));
 
   const values = {
     slug,
@@ -133,14 +146,20 @@ export async function saveNewsAction(formData: FormData): Promise<void> {
     publishedAt: Number.isNaN(publishedAt.getTime()) ? new Date() : publishedAt,
   };
 
-  if (Number.isInteger(id) && id > 0) {
-    await db.update(news).set(values).where(eq(news.id, id));
-  } else {
-    await db.insert(news).values(values);
+  try {
+    if (Number.isInteger(id) && id > 0) {
+      await db.update(news).set(values).where(eq(news.id, id));
+    } else {
+      await db.insert(news).values(values);
+    }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Не удалось сохранить публикацию." };
   }
 
   refreshPublic();
   redirect("/admin/news?saved=1");
+  // После redirect() код недостижим, но TypeScript требует return
+  return {};
 }
 
 export async function deleteNewsAction(formData: FormData): Promise<void> {
