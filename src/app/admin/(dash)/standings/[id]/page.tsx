@@ -6,6 +6,9 @@ import { standings } from "@/db/schema";
 import { deleteStandingAction, saveStandingAction } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 const DIVISIONS = [
   "Чемпионат области",
@@ -34,12 +37,16 @@ export default async function StandingEditPage({
   if (!isNew) {
     const numericId = Number(id);
     if (!Number.isInteger(numericId)) notFound();
-    const rows = await db
-      .select()
-      .from(standings)
-      .where(eq(standings.id, numericId))
-      .limit(1);
-    item = rows[0] ?? null;
+    try {
+      const rows = await db
+        .select()
+        .from(standings)
+        .where(eq(standings.id, numericId))
+        .limit(1);
+      item = rows[0] ?? null;
+    } catch {
+      notFound();
+    }
     if (!item) notFound();
   }
 
