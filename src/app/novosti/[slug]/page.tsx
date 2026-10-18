@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/Photo";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -82,7 +82,7 @@ export default async function NewsArticlePage({ params }: Props) {
           <Reveal className="mx-auto mt-12 max-w-[1000px]">
             <figure>
               <div className="relative aspect-[16/9] overflow-hidden bg-paper-3">
-                <Image
+                <Photo
                   src={item.image}
                   alt={item.title}
                   fill

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/Photo";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import ScoreStrip from "@/components/ScoreStrip";
@@ -46,7 +46,7 @@ export default async function HomePage() {
       {/* ---------- hero ---------- */}
       <section className="relative isolate bg-ink-900">
         <div className="absolute inset-0">
-          <Image
+          <Photo
             src="/photos/stock/action-1.jpg"
             alt=""
             fill
@@ -300,7 +300,7 @@ export default async function HomePage() {
           </Reveal>
 
           <div className="relative min-h-[360px] lg:min-h-full">
-            <Image
+            <Photo
               src="/photos/news/regionalnyj-final-zolotoj-shajby-zevershyon.jpg"
               alt="Региональный финал «Золотой шайбы», Ардатов"
               fill
@@ -328,7 +328,7 @@ export default async function HomePage() {
               <Reveal key={v.title} delay={i * 80}>
                 <Link href="/video" className="group block">
                   <div className="media-zoom relative aspect-[16/10] overflow-hidden bg-paper-3">
-                    <Image
+                    <Photo
                       src={v.poster}
                       alt={v.title}
                       fill

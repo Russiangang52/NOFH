@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/Photo";
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
@@ -36,7 +36,7 @@ export default function VideoPage() {
           <Reveal>
             <div className="group grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-center">
               <div className="media-zoom relative aspect-[16/9] cursor-pointer overflow-hidden bg-paper-3">
-                <Image
+                <Photo
                   src={lead.poster}
                   alt={lead.title}
                   fill
@@ -77,7 +77,7 @@ export default function VideoPage() {
               <Reveal key={v.title} delay={(i % 3) * 80}>
                 <div className="group cursor-pointer">
                   <div className="media-zoom relative aspect-[16/10] overflow-hidden bg-paper-3">
-                    <Image
+                    <Photo
                       src={v.poster}
                       alt={v.title}
                       fill

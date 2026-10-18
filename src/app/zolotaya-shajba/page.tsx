@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/Photo";
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
@@ -89,7 +89,7 @@ export default async function GoldenPuckPage() {
           <Reveal delay={90}>
             <figure>
               <div className="media-zoom relative aspect-[4/3] overflow-hidden bg-paper-3">
-                <Image
+                <Photo
                   src="/photos/news/regionalnyj-final-zolotoj-shajby-2014-2015-zaver.jpg"
                   alt="Региональный финал «Золотой шайбы» 2014–2015 г.р."
                   fill

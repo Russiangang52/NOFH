@@ -88,87 +88,47 @@ const day = 24 * 60 * 60 * 1000;
 
 let seedPromise: Promise<void> | null = null;
 
-async function syncNews(): Promise<void> {
-  // Однократная загрузка реальных публикаций nofh.ru.
-  // Повторно не выполняется, чтобы не затирать материалы, добавленные через админку.
-  const flag = await db
-    .select()
-    .from(meta)
-    .where(eq(meta.key, "news_seed_version"))
-    .limit(1);
-  if (flag[0]?.value === NEWS_SEED_VERSION) return;
-
-  await db.delete(news);
-  await db.insert(news).values(
-    NEWS_SEED.map((item) => ({
-      slug: item.slug,
-      title: item.title,
-      excerpt: item.excerpt,
-      body: item.body,
-      category: item.category,
-      tags: item.tags,
-      image: item.image,
-      featured: item.featured,
-      views: item.views,
-      publishedAt: new Date(`${item.publishedAt}T12:00:00+03:00`),
-    })),
-  );
-
-  await db
-    .insert(meta)
-    .values({ key: "news_seed_version", value: NEWS_SEED_VERSION })
-    .onConflictDoUpdate({
-      target: meta.key,
-      set: { value: NEWS_SEED_VERSION },
-    });
-}
-
 async function runSeed(): Promise<void> {
-  await syncNews();
+  await db.transaction(async (tx) => {
+    // A database lock protects concurrent cold starts on serverless hosting.
+    await tx.execute(sql`select pg_advisory_xact_lock(73849217)`);
+    const [newsFlag] = await tx.select().from(meta).where(eq(meta.key, "news_seed_version")).limit(1);
+    if (newsFlag?.value !== NEWS_SEED_VERSION) {
+      const existing = await tx.select({ id: news.id }).from(news).limit(1);
+      // Never delete or overwrite administrator content, even without a seed flag.
+      if (existing.length === 0) {
+        await tx.insert(news).values(NEWS_SEED.map((item) => ({
+          ...item,
+          publishedAt: new Date(`${item.publishedAt}T12:00:00+03:00`),
+        }))).onConflictDoNothing({ target: news.slug });
+      }
+      await tx.insert(meta).values({ key: "news_seed_version", value: NEWS_SEED_VERSION })
+        .onConflictDoUpdate({ target: meta.key, set: { value: NEWS_SEED_VERSION } });
+    }
 
-  const existing = await db
-    .select({ count: sql<number>`cast(count(*) as int)` })
-    .from(standings);
-  if ((existing[0]?.count ?? 0) > 0) return;
-
-  const now = Date.now();
-
-  await db.insert(standings).values(
-    standingsSeed.map((row) => ({
-      season: "2025-2026",
-      division: row[0],
-      position: row[1],
-      team: row[2],
-      city: row[3],
-      games: row[4],
-      wins: row[5],
-      winsOt: row[6],
-      winsSo: row[7],
-      lossesSo: row[8],
-      lossesOt: row[9],
-      losses: row[10],
-      goalsFor: row[11],
-      goalsAgainst: row[12],
-      points: row[13],
-    })),
-  );
-
-  await db.insert(matches).values(
-    matchesSeed.map((m) => ({
-      season: "2025-2026",
-      division: m.division,
-      stage: m.stage,
-      homeTeam: m.home,
-      awayTeam: m.away,
-      homeScore: m.hs ?? null,
-      awayScore: m.as ?? null,
-      venue: m.venue,
-      startsAt: new Date(
-        new Date(now + m.inDays * day).setHours(m.hour, 0, 0, 0),
-      ),
-      status: m.status,
-    })),
-  );
+    const [sportsFlag] = await tx.select().from(meta).where(eq(meta.key, "sports_seed_version")).limit(1);
+    if (sportsFlag) return;
+    const existingStandings = await tx.select({ id: standings.id }).from(standings).limit(1);
+    if (!existingStandings.length) {
+      await tx.insert(standings).values(standingsSeed.map((row) => ({
+        season: "2025-2026", division: row[0], position: row[1], team: row[2], city: row[3],
+        games: row[4], wins: row[5], winsOt: row[6], winsSo: row[7], lossesSo: row[8],
+        lossesOt: row[9], losses: row[10], goalsFor: row[11], goalsAgainst: row[12], points: row[13],
+      })));
+    }
+    const existingMatches = await tx.select({ id: matches.id }).from(matches).limit(1);
+    if (!existingMatches.length) {
+      const now = Date.now();
+      await tx.insert(matches).values(matchesSeed.map((m) => ({
+        season: "2025-2026", division: m.division, stage: m.stage,
+        homeTeam: m.home, awayTeam: m.away, homeScore: m.hs ?? null, awayScore: m.as ?? null,
+        venue: m.venue,
+        startsAt: new Date(new Date(now + m.inDays * day).setHours(m.hour, 0, 0, 0)),
+        status: m.status,
+      })));
+    }
+    await tx.insert(meta).values({ key: "sports_seed_version", value: "1" }).onConflictDoNothing();
+  });
 }
 
 export async function ensureSeeded(): Promise<void> {

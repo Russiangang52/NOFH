@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/Photo";
 import Link from "next/link";
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
@@ -72,7 +72,7 @@ export default function MediaPage() {
                       g.wide ? "aspect-[16/9]" : "aspect-[4/3]"
                     }`}
                   >
-                    <Image
+                    <Photo
                       src={g.src}
                       alt={g.caption}
                       fill
@@ -105,7 +105,7 @@ export default function MediaPage() {
               <Reveal key={v.title} delay={i * 70}>
                 <Link href="/video" className="group block">
                   <div className="media-zoom relative aspect-[16/10] overflow-hidden bg-paper-3">
-                    <Image
+                    <Photo
                       src={v.poster}
                       alt={v.title}
                       fill

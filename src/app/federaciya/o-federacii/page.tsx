@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/Photo";
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
@@ -66,7 +66,7 @@ export default function AboutPage() {
           <Reveal>
             <figure>
               <div className="media-zoom relative aspect-[4/3] overflow-hidden bg-paper-3">
-                <Image
+                <Photo
                   src="/photos/news/ceremoniya-nagrazhdeniya-prizyorov-i-laureatov.jpg"
                   alt="Церемония награждения призёров и лауреатов"
                   fill

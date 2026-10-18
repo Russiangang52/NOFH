@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/Photo";
 import Link from "next/link";
 import { desc } from "drizzle-orm";
 import { db } from "@/db";
@@ -55,7 +55,7 @@ export default async function AdminNewsPage({
             className="grid items-center gap-5 border-b border-line py-5 md:grid-cols-[100px_1fr_auto]"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-paper-3">
-              <Image
+              <Photo
                 src={n.image}
                 alt=""
                 fill

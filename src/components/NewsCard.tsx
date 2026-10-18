@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/Photo";
 import Link from "next/link";
 import type { NewsRow } from "@/db/schema";
 import { formatDate } from "@/components/ui";
@@ -19,7 +19,7 @@ export function NewsCard({
           size === "lg" ? "aspect-[16/9]" : "aspect-[4/3]"
         }`}
       >
-        <Image
+        <Photo
           src={item.image}
           alt={item.title}
           fill
