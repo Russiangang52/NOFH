@@ -8,6 +8,7 @@ const NAV = [
   { href: "/admin", label: "Обзор" },
   { href: "/admin/news", label: "Новости" },
   { href: "/admin/matches", label: "Матчи и события" },
+  { href: "/admin/standings", label: "Турнирные таблицы" },
   { href: "/admin/questions", label: "Обращения" },
 ];
 
