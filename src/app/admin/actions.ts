@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { matches, media, news, questions } from "@/db/schema";
+import { matches, media, news, questions, standings } from "@/db/schema";
 import {
   checkPassword,
   createSession,
@@ -18,6 +18,12 @@ function str(data: FormData, key: string, max = 4000): string {
   return String(data.get(key) ?? "")
     .trim()
     .slice(0, max);
+}
+
+function num(data: FormData, key: string): number {
+  const raw = str(data, key, 20);
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;
 }
 
 function slugify(input: string): string {
@@ -96,7 +102,7 @@ async function saveUpload(
 
 export type NewsFormState = { error?: string };
 
-// Overload 1: для <form action={saveNewsAction}> (без useActionState) — page.tsx
+// Overload 1: для <form action={saveNewsAction}> (без useActionState)
 export async function saveNewsAction(formData: FormData): Promise<void>;
 // Overload 2: для useActionState — NewsEditor.tsx
 export async function saveNewsAction(prev: NewsFormState, formData: FormData): Promise<NewsFormState>;
@@ -107,7 +113,6 @@ export async function saveNewsAction(
 ): Promise<NewsFormState | void> {
   await requireAdmin();
 
-  // Универсально определяем FormData в зависимости от способа вызова
   const data: FormData = formDataOrUndefined ?? (prevOrFormData as FormData);
 
   const id = Number(str(data, "id", 20));
@@ -158,7 +163,6 @@ export async function saveNewsAction(
 
   refreshPublic();
   redirect("/admin/news?saved=1");
-  // После redirect() код недостижим, но TypeScript требует return
   return {};
 }
 
@@ -225,6 +229,60 @@ export async function deleteMatchAction(formData: FormData): Promise<void> {
   refreshPublic();
   revalidatePath("/admin/matches");
   redirect("/admin/matches?deleted=1");
+}
+
+/* ------------------------- standings (турнирные таблицы) ------------------------- */
+
+export async function saveStandingAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const id = Number(str(formData, "id", 20));
+  const season = str(formData, "season", 20) || "2025-2026";
+  const division = str(formData, "division", 40);
+  const team = str(formData, "team", 80);
+  const city = str(formData, "city", 80);
+
+  if (!division) throw new Error("Укажите турнир (дивизион).");
+  if (!team) throw new Error("Укажите название команды.");
+
+  const values = {
+    season,
+    division,
+    position: num(formData, "position") || 1,
+    team,
+    city,
+    games: num(formData, "games"),
+    wins: num(formData, "wins"),
+    winsOt: num(formData, "winsOt"),
+    winsSo: num(formData, "winsSo"),
+    lossesOt: num(formData, "lossesOt"),
+    lossesSo: num(formData, "lossesSo"),
+    losses: num(formData, "losses"),
+    goalsFor: num(formData, "goalsFor"),
+    goalsAgainst: num(formData, "goalsAgainst"),
+    points: num(formData, "points"),
+  };
+
+  if (Number.isInteger(id) && id > 0) {
+    await db.update(standings).set(values).where(eq(standings.id, id));
+  } else {
+    await db.insert(standings).values(values);
+  }
+
+  refreshPublic();
+  revalidatePath("/admin/standings");
+  redirect("/admin/standings?saved=1");
+}
+
+export async function deleteStandingAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = Number(str(formData, "id", 20));
+  if (Number.isInteger(id) && id > 0) {
+    await db.delete(standings).where(eq(standings.id, id));
+  }
+  refreshPublic();
+  revalidatePath("/admin/standings");
+  redirect("/admin/standings?deleted=1");
 }
 
 /* ------------------------- questions ------------------------- */
