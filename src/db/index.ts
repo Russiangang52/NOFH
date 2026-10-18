@@ -1,23 +1,21 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
-}
+const databaseUrl = process.env.DATABASE_URL ?? "";
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
 };
 
+// На этапе сборки DATABASE_URL может отсутствовать.
+// Создаём «пустой» пул — он не будет использоваться, т.к. страницы динамические.
 export const pool =
   globalForDb.__arenaNextJsPostgresqlPool ??
-  new Pool({
-    connectionString: databaseUrl,
-  });
+  (databaseUrl
+    ? new Pool({ connectionString: databaseUrl })
+    : (new Pool() as Pool));
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== "production" && databaseUrl) {
   globalForDb.__arenaNextJsPostgresqlPool = pool;
 }
 
