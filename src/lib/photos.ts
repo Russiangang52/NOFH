@@ -78,6 +78,7 @@ export const MAX_PHOTO_BYTES = 4 * 1024 * 1024; // 4 МБ
 export const PHOTO_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const OWNED_PREFIXES = ["/photos/", "/api/media/"];
+
 export function isOwnedPhotoPath(src: string): boolean {
   return OWNED_PREFIXES.some(prefix => src.startsWith(prefix));
 }
