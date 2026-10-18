@@ -99,3 +99,88 @@ export function getFallback(src: string): PhotoFallback | null {
   }
   return null;
 }
+// === Типы и хелперы для медиатеки ===
+
+export type LibraryPhoto = {
+  id: string;
+  mediaId?: number;
+  url: string;
+  filename: string;
+  title: string;
+  mime: string;
+  bytes: number;
+  width?: number;
+  height?: number;
+  storage: "database" | "project";
+  createdAt?: string;
+};
+
+export type LibraryResponse = {
+  photos: LibraryPhoto[];
+  total: number;
+  nextCursor: number | null;
+};
+
+export const MAX_PHOTO_BYTES = 4 * 1024 * 1024; // 4 МБ
+export const PHOTO_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+// Пути, которые обслуживаются собственным доменом (для <Photo> и PhotoPicker)
+const OWNED_PREFIXES = ["/photos/", "/api/media/"];
+export function isOwnedPhotoPath(src: string): boolean {
+  return OWNED_PREFIXES.some(prefix => src.startsWith(prefix));
+}
+
+// Человекочитаемый размер файла
+export function photoSize(bytes: number): string {
+  if (!bytes) return "0 КБ";
+  if (bytes < 1024) return `${bytes} Б`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} КБ`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+}
+
+// URL для скачивания оригинала (force-download через query)
+export function photoDownloadUrl(photo: { url: string; filename: string }): string {
+  const sep = photo.url.includes("?") ? "&" : "?";
+  return `${photo.url}${sep}download=1`;
+}
+
+// === Bundled photos — список оригиналов из media-library/manifest.json ===
+
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+type ManifestFile = {
+  path: string;
+  filename: string;
+  category: "news" | "stock";
+  title: string;
+  mime: string;
+  bytes: number;
+  width: number;
+  height: number;
+};
+
+function loadBundledPhotos(): LibraryPhoto[] {
+  try {
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+    const manifestPath = path.join(root, "media-library", "manifest.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as { files: ManifestFile[] };
+    return manifest.files.map(file => ({
+      id: `project-${file.path}`,
+      url: file.path,
+      filename: file.filename,
+      title: file.title,
+      mime: file.mime,
+      bytes: file.bytes,
+      width: file.width,
+      height: file.height,
+      storage: "project" as const,
+    }));
+  } catch {
+    // Если манифест недоступен (например, в edge-среде) — возвращаем пустой массив
+    return [];
+  }
+}
+
+export const BUNDLED_PHOTOS: LibraryPhoto[] = loadBundledPhotos();
