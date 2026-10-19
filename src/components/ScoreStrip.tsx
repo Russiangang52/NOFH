@@ -16,15 +16,15 @@ export default function ScoreStrip({
 
   return (
     <section className="border-b border-line bg-paper-2">
-      <div className="container-x flex items-stretch gap-0 overflow-x-auto">
-        <div className="flex shrink-0 items-center pr-6">
+      <div className="container-x flex items-stretch gap-0 overflow-x-auto scrollbar-hide snap-x-mobile">
+        <div className="flex shrink-0 items-center pr-4 sm:pr-6">
           <span className="eyebrow text-muted-2">Матчи</span>
         </div>
         {items.map(({ match, played }) => (
           <Link
             key={match.id}
             href="/raspisanie"
-            className="group flex min-w-[210px] shrink-0 flex-col justify-center border-l border-line px-5 py-4 transition-colors hover:bg-paper"
+            className="group flex min-w-[180px] shrink-0 flex-col justify-center border-l border-line px-4 py-4 transition-colors hover:bg-paper sm:min-w-[210px] sm:px-5"
           >
             <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-muted-2">
               <span className="tnum">{formatDateShort(match.startsAt)}</span>
@@ -51,7 +51,7 @@ export default function ScoreStrip({
         ))}
         <Link
           href="/raspisanie"
-          className="flex shrink-0 items-center border-l border-line px-6 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted transition-colors hover:text-accent"
+          className="flex shrink-0 items-center border-l border-line px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted transition-colors hover:text-accent sm:px-6"
         >
           Все матчи
         </Link>
