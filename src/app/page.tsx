@@ -59,21 +59,21 @@ export default async function HomePage() {
         <p className="absolute bottom-3 right-4 z-10 text-[10px] text-white/40">
           Фото: Luke Miller / Pexels
         </p>
-        <div className="container-x relative py-24 md:py-32 lg:py-40">
+                <div className="container-x relative py-16 sm:py-24 md:py-32 lg:py-40">
           <div className="max-w-3xl">
             <p className="animate-soft-in eyebrow text-white/55">
               Сезон 2025 / 2026 · Официальный сайт
             </p>
-            <h1 className="animate-soft-in mt-6 text-[2.6rem] font-bold leading-[1.02] tracking-[-0.03em] text-white sm:text-[3.6rem] lg:text-[4.3rem]">
+            <h1 className="animate-soft-in mt-6 text-[1.9rem] font-bold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.6rem] md:text-[3.6rem] lg:text-[4.3rem]">
               Нижегородская областная
               <br className="hidden sm:block" /> федерация хоккея
             </h1>
-            <p className="animate-soft-in mt-7 max-w-xl text-[1.05rem] leading-[1.75] text-white/70">
+            <p className="animate-soft-in mt-6 max-w-xl text-[0.95rem] leading-[1.7] text-white/70 sm:mt-7 sm:text-[1.05rem] sm:leading-[1.75]">
               Организуем Чемпионат и Первенство области, студенческую и
               юниорскую лиги, региональный этап клуба «Золотая шайба» и
               подготовку арбитров с 1992 года.
             </p>
-            <div className="animate-soft-in mt-10 flex flex-wrap gap-4">
+            <div className="animate-soft-in mt-8 flex flex-wrap gap-3 sm:mt-10 sm:gap-4">
               <Btn href="/raspisanie" variant="accent">
                 Расписание матчей
               </Btn>
@@ -83,7 +83,6 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
 
       <ScoreStrip results={results} upcoming={upcoming} />
 
