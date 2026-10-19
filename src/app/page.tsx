@@ -43,12 +43,12 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ---------- hero ---------- */}
+            {/* ---------- hero ---------- */}
       <section className="relative isolate bg-ink-900">
         <div className="absolute inset-0">
           <Photo
-            src="/photos/stock/action-1.jpg"
-            alt=""
+            src="/photos/news/zavershilsya-polufinal-zolotoj-shajby-2008-2009.jpg"
+            alt="Полуфинал Золотой шайбы 2008-2009"
             fill
             priority
             className="photo-grade object-cover opacity-55"
@@ -57,7 +57,7 @@ export default async function HomePage() {
         </div>
 
         <p className="absolute bottom-3 right-4 z-10 text-[10px] text-white/40">
-          Фото: Luke Miller / Pexels
+          Фото: Нижегородская областная федерация хоккея
         </p>
                 <div className="container-x relative py-16 sm:py-24 md:py-32 lg:py-40">
           <div className="max-w-3xl">
