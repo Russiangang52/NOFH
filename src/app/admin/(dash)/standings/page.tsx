@@ -337,7 +337,7 @@ export default async function AdminStandingsPage({
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
               <table className="mt-5 w-full text-left text-[13px]">
                 <thead className="border-b border-line text-[11px] uppercase tracking-[0.1em] text-muted">
                   <tr>
