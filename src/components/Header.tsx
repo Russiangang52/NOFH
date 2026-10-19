@@ -173,7 +173,7 @@ export default function Header() {
 
       {/* mobile */}
       <div
-        className={`fixed inset-0 z-[60] md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-[60] overflow-hidden md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
       >
         <div
           onClick={() => setOpen(false)}
