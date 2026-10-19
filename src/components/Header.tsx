@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV, SITE } from "@/lib/content";
-import { Icon, Logo } from "@/components/ui";
+import { Icon } from "@/components/ui";
 
 export default function Header() {
   const pathname = usePathname();
@@ -86,11 +86,14 @@ export default function Header() {
               stuck ? "py-3" : "py-4"
             }`}
           >
-            <Logo
-              className={`text-ink-900 transition-all duration-300 ${
-                stuck ? "h-9 w-9" : "h-11 w-11"
-              }`}
-            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+<img
+  src="/logo.png"
+  alt="НОФХ"
+  className={`w-auto transition-all duration-300 ${
+    stuck ? "h-10" : "h-14"
+  }`}
+/>
             <span className="leading-tight">
               <span className="block font-display text-[15px] font-bold tracking-tight text-ink-900">
                 Федерация хоккея
