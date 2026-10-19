@@ -77,28 +77,28 @@ export default function Header() {
       <div
         className={`sticky top-0 z-50 border-b border-line bg-paper/95 backdrop-blur-[2px] transition-shadow duration-300 ${
           stuck ? "shadow-[0_8px_24px_-18px_rgba(11,16,22,.5)]" : ""
-        }`}
+        } ${open ? "md:bg-paper/95" : ""}`}
       >
-        <div className="container-x flex items-center justify-between gap-8">
+        <div className="container-x flex items-center justify-between gap-4 md:gap-8">
           <Link
             href="/"
-            className={`flex items-center gap-3 transition-all duration-300 ${
+            className={`flex min-w-0 items-center gap-3 transition-all duration-300 ${
               stuck ? "py-3" : "py-4"
             }`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-<img
-  src="/logo.png"
-  alt="НОФХ"
-  className={`w-auto transition-all duration-300 ${
-    stuck ? "h-10" : "h-14"
-  }`}
-/>
-            <span className="leading-tight">
-              <span className="block font-display text-[15px] font-bold tracking-tight text-ink-900">
+            <img
+              src="/logo.png"
+              alt="НОФХ"
+              className={`w-auto shrink-0 transition-all duration-300 ${
+                stuck ? "h-10" : "h-12 sm:h-14"
+              }`}
+            />
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate font-display text-[14px] font-bold tracking-tight text-ink-900 sm:text-[15px]">
                 Федерация хоккея
               </span>
-              <span className="block text-[10.5px] uppercase tracking-[0.18em] text-muted">
+              <span className="block truncate text-[10px] uppercase tracking-[0.18em] text-muted sm:text-[10.5px]">
                 Нижегородская область
               </span>
             </span>
@@ -144,10 +144,10 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-3 md:gap-4">
             <Link
               href="/federaciya/quest"
-              className="hidden bg-ink-900 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent inline-flex"
+              className="hidden bg-ink-900 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent lg:inline-flex"
             >
               Задать вопрос
             </Link>
@@ -173,23 +173,35 @@ export default function Header() {
 
       {/* mobile */}
       <div
-        className={`fixed inset-0 z-40 md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-[60] md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
       >
         <div
           onClick={() => setOpen(false)}
-          className={`absolute inset-0 bg-ink-900/35 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 bg-ink-900/50 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
         />
         <div
-          className={`absolute right-0 top-0 h-full w-[90%] max-w-sm overflow-y-auto bg-paper px-6 pb-16 pt-24 transition-transform duration-500 ease-[cubic-bezier(.19,1,.22,1)] ${
+          className={`absolute right-0 top-0 h-full w-[88%] max-w-sm overflow-y-auto bg-paper px-5 pb-16 pt-20 transition-transform duration-500 ease-[cubic-bezier(.19,1,.22,1)] sm:px-6 sm:pt-24 ${
             open ? "translate-x-0" : "translate-x-full"
           }`}
         >
+          {/* Кнопка закрытия */}
+          <button
+            type="button"
+            aria-label="Закрыть меню"
+            onClick={() => setOpen(false)}
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center border border-line text-ink-700 transition-colors hover:border-ink-900 hover:text-ink-900"
+          >
+            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+              <path d="M5 5l10 10M15 5L5 15" />
+            </svg>
+          </button>
+
           {NAV.map((item) => (
             <div key={item.label} className="border-b border-line">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <Link
                   href={item.href}
-                  className="flex-1 py-4 font-display text-[17px] font-semibold text-ink-900"
+                  className="min-w-0 flex-1 whitespace-nowrap py-4 font-display text-[16px] font-semibold text-ink-900 sm:text-[17px]"
                 >
                   {item.label}
                 </Link>
@@ -200,7 +212,7 @@ export default function Header() {
                     onClick={() =>
                       setExpanded(expanded === item.label ? null : item.label)
                     }
-                    className={`flex h-8 w-8 items-center justify-center text-muted transition-transform duration-300 ${
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center text-muted transition-transform duration-300 ${
                       expanded === item.label ? "rotate-180" : ""
                     }`}
                   >
@@ -241,8 +253,8 @@ export default function Header() {
           </Link>
 
           <div className="mt-8 space-y-2 text-[13px] text-muted">
-            <p>{SITE.phone}</p>
-            <p>{SITE.email}</p>
+            <p className="break-all">{SITE.phone}</p>
+            <p className="break-all">{SITE.email}</p>
           </div>
         </div>
       </div>
