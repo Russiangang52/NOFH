@@ -32,7 +32,7 @@ export default function StandingsBoard({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 overflow-x-auto scrollbar-hide border-b border-line pb-2">
         {divisions.map((d) => (
           <button
             key={d}
@@ -48,8 +48,8 @@ export default function StandingsBoard({
         ))}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] border-collapse text-[13.5px]">
+      <div className="overflow-x-auto scrollbar-hide">
+        <table className="w-full min-w-[640px] border-collapse text-[13.5px]">
           <thead>
             <tr className="border-b border-line text-[10.5px] uppercase tracking-[0.1em] text-muted-2">
               <th className="w-12 py-3 pl-1 text-left font-semibold">№</th>
@@ -111,15 +111,17 @@ export default function StandingsBoard({
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-line pt-4 text-[11.5px] text-muted-2">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-line pt-3 text-[11px] text-muted-2 sm:gap-x-6 sm:text-[11.5px] sm:pt-4">
         <span className="flex items-center gap-2">
           <span className="h-3 w-[2px] bg-accent" />
           зона плей-офф
         </span>
         <span>И — игры</span>
         <span>В — победы</span>
-        <span>ВО / ВБ — победы в овертайме / по буллитам</span>
-        <span>ПБ / ПО — поражения по буллитам / в овертайме</span>
+        <span className="hidden sm:inline">ВО / ВБ — победы в овертайме / по буллитам</span>
+        <span className="sm:hidden">ВО/ВБ — в овертайме/буллитах</span>
+        <span className="hidden sm:inline">ПБ / ПО — поражения по буллитам / в овертайме</span>
+        <span className="sm:hidden">ПБ/ПО — по буллитам/овертайму</span>
         <span>П — поражения</span>
       </div>
     </div>
