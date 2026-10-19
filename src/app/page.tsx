@@ -83,7 +83,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-
+      </section>
       <ScoreStrip results={results} upcoming={upcoming} />
 
       {/* ---------- facts ---------- */}
