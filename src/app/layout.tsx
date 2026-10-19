@@ -26,6 +26,12 @@ export const metadata: Metadata = {
   },
   description:
     "Официальный сайт Нижегородской областной федерации хоккея: новости, расписание матчей, турнирные таблицы, документы, «Золотая шайба», судейство и контакты.",
+  other: {
+    "format-detection": "telephone=no",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
