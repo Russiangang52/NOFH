@@ -1,14 +1,11 @@
 import Link from "next/link";
-import { asc } from "drizzle-orm";
+import { asc, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { standings } from "@/db/schema";
 import { deleteStandingAction, saveStandingAction } from "@/app/admin/actions";
 import { Icon } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
-export const dynamicParams = true;
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
 
 const DIVISIONS = [
   "Чемпионат области",
@@ -27,16 +24,12 @@ export default async function AdminStandingsPage({
 }) {
   const { saved, deleted } = await searchParams;
 
-  let rows: typeof standings.$inferSelect[] = [];
-  try {
-    rows = await db
-      .select()
-      .from(standings)
-      .orderBy(asc(standings.season), asc(standings.division), asc(standings.position));
-  } catch {
-    rows = [];
-  }
+  const rows = await db
+    .select()
+    .from(standings)
+    .orderBy(asc(standings.season), asc(standings.division), asc(standings.position));
 
+  // Группируем по season + division
   const groups = new Map<string, typeof rows>();
   for (const row of rows) {
     const key = `${row.season}||${row.division}`;
@@ -75,6 +68,7 @@ export default async function AdminStandingsPage({
         </p>
       ) : null}
 
+      {/* Форма добавления новой команды */}
       <div className="mt-10 border border-line p-7">
         <h2 className="eyebrow text-muted-2">Добавить команду в таблицу</h2>
         <form
@@ -82,18 +76,42 @@ export default async function AdminStandingsPage({
           className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-4"
         >
           <div>
-            <label className={LABEL} htmlFor="season">Сезон *</label>
-            <input id="season" name="season" required list="seasons-list" defaultValue="2025-2026" className={FIELD} placeholder="2025-2026" />
+            <label className={LABEL} htmlFor="season">
+              Сезон *
+            </label>
+            <input
+              id="season"
+              name="season"
+              required
+              list="seasons-list"
+              defaultValue="2025-2026"
+              className={FIELD}
+              placeholder="2025-2026"
+            />
             <datalist id="seasons-list">
-              {SEASONS.map((s) => <option key={s} value={s} />)}
+              {SEASONS.map((s) => (
+                <option key={s} value={s} />
+              ))}
             </datalist>
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="division">Турнир (дивизион) *</label>
-            <input id="division" name="division" required list="divisions-list" defaultValue="Чемпионат области" className={FIELD} placeholder="Чемпионат области" />
+            <label className={LABEL} htmlFor="division">
+              Турнир (дивизион) *
+            </label>
+            <input
+              id="division"
+              name="division"
+              required
+              list="divisions-list"
+              defaultValue="Чемпионат области"
+              className={FIELD}
+              placeholder="Чемпионат области"
+            />
             <datalist id="divisions-list">
-              {DIVISIONS.map((d) => <option key={d} value={d} />)}
+              {DIVISIONS.map((d) => (
+                <option key={d} value={d} />
+              ))}
             </datalist>
             <p className="mt-1 text-[11px] text-muted-2">
               Можно вписать своё название — будет создана новая таблица.
@@ -101,72 +119,189 @@ export default async function AdminStandingsPage({
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="team">Команда *</label>
-            <input id="team" name="team" required className={FIELD} placeholder="ХК «Кстово»" />
+            <label className={LABEL} htmlFor="team">
+              Команда *
+            </label>
+            <input
+              id="team"
+              name="team"
+              required
+              className={FIELD}
+              placeholder="ХК «Кстово»"
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="city">Город</label>
-            <input id="city" name="city" className={FIELD} placeholder="Кстово" />
+            <label className={LABEL} htmlFor="city">
+              Город
+            </label>
+            <input
+              id="city"
+              name="city"
+              className={FIELD}
+              placeholder="Кстово"
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="position">Место</label>
-            <input id="position" name="position" type="number" min="1" defaultValue="1" className={NUM} />
+            <label className={LABEL} htmlFor="position">
+              Место
+            </label>
+            <input
+              id="position"
+              name="position"
+              type="number"
+              min="1"
+              defaultValue="1"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="games">Игры</label>
-            <input id="games" name="games" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="games">
+              Игры
+            </label>
+            <input
+              id="games"
+              name="games"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="wins">Победы (осн.)</label>
-            <input id="wins" name="wins" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="wins">
+              Победы (осн.)
+            </label>
+            <input
+              id="wins"
+              name="wins"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="winsOt">Победы (ОТ)</label>
-            <input id="winsOt" name="winsOt" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="winsOt">
+              Победы (ОТ)
+            </label>
+            <input
+              id="winsOt"
+              name="winsOt"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="winsSo">Победы (бул.)</label>
-            <input id="winsSo" name="winsSo" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="winsSo">
+              Победы (бул.)
+            </label>
+            <input
+              id="winsSo"
+              name="winsSo"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="lossesOt">Поражения (ОТ)</label>
-            <input id="lossesOt" name="lossesOt" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="lossesOt">
+              Поражения (ОТ)
+            </label>
+            <input
+              id="lossesOt"
+              name="lossesOt"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="lossesSo">Поражения (бул.)</label>
-            <input id="lossesSo" name="lossesSo" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="lossesSo">
+              Поражения (бул.)
+            </label>
+            <input
+              id="lossesSo"
+              name="lossesSo"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="losses">Поражения (осн.)</label>
-            <input id="losses" name="losses" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="losses">
+              Поражения (осн.)
+            </label>
+            <input
+              id="losses"
+              name="losses"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="goalsFor">Заброшено</label>
-            <input id="goalsFor" name="goalsFor" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="goalsFor">
+              Заброшено
+            </label>
+            <input
+              id="goalsFor"
+              name="goalsFor"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="goalsAgainst">Пропущено</label>
-            <input id="goalsAgainst" name="goalsAgainst" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="goalsAgainst">
+              Пропущено
+            </label>
+            <input
+              id="goalsAgainst"
+              name="goalsAgainst"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="points">Очки</label>
-            <input id="points" name="points" type="number" min="0" defaultValue="0" className={NUM} />
+            <label className={LABEL} htmlFor="points">
+              Очки
+            </label>
+            <input
+              id="points"
+              name="points"
+              type="number"
+              min="0"
+              defaultValue="0"
+              className={NUM}
+            />
           </div>
 
           <div className="flex items-end lg:col-span-1">
-            <button type="submit" className="inline-flex w-full items-center justify-center gap-2 bg-ink-900 px-6 py-3 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent">
+            <button
+              type="submit"
+              className="inline-flex w-full items-center justify-center gap-2 bg-ink-900 px-6 py-3 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent"
+            >
               <Icon name="plus" className="h-4 w-4" strokeWidth={1.6} />
               Добавить
             </button>
@@ -174,6 +309,7 @@ export default async function AdminStandingsPage({
         </form>
       </div>
 
+      {/* Список существующих таблиц */}
       {groups.size === 0 ? (
         <p className="mt-12 py-8 text-center text-[14px] text-muted">
           Пока нет ни одной записи. Добавьте первую команду выше.
@@ -192,7 +328,9 @@ export default async function AdminStandingsPage({
                 </span>
               </h2>
               <Link
-                href={`/admin/standings/new?season=${encodeURIComponent(season)}&division=${encodeURIComponent(division)}`}
+                href={`/admin/standings/new?season=${encodeURIComponent(
+                  season,
+                )}&division=${encodeURIComponent(division)}`}
                 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-accent hover:underline"
               >
                 + Команда в этот турнир
