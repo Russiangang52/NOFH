@@ -3,13 +3,18 @@
 import { useMemo, useState } from "react";
 import type { StandingRow } from "@/db/schema";
 
-const COLS = [
-  ["games", "И"],
-  ["wins", "В"],
+// Колонки, которые показываются только на планшете и больше
+const COLS_DESKTOP = [
   ["winsOt", "ВО"],
   ["winsSo", "ВБ"],
   ["lossesSo", "ПБ"],
   ["lossesOt", "ПО"],
+] as const;
+
+// Колонки, которые показываются всегда (основные)
+const COLS_BASE = [
+  ["games", "И"],
+  ["wins", "В"],
   ["losses", "П"],
 ] as const;
 
@@ -49,18 +54,28 @@ export default function StandingsBoard({
       </div>
 
       <div className="overflow-x-auto scrollbar-hide">
-        <table className="w-full min-w-[640px] border-collapse text-[13.5px]">
+        <table className="w-full border-collapse text-[13px] sm:text-[13.5px]">
           <thead>
-            <tr className="border-b border-line text-[10.5px] uppercase tracking-[0.1em] text-muted-2">
-              <th className="w-12 py-3 pl-1 text-left font-semibold">№</th>
-              <th className="py-3 text-left font-semibold">Команда</th>
-              {COLS.map(([, label]) => (
-                <th key={label} className="w-12 py-3 text-center font-semibold">
+            <tr className="border-b border-line text-[10px] uppercase tracking-[0.08em] text-muted-2 sm:text-[10.5px] sm:tracking-[0.1em]">
+              <th className="w-8 py-3 pl-1 text-left font-semibold sm:w-12">№</th>
+              <th className="py-3 pr-2 text-left font-semibold">Команда</th>
+              {COLS_BASE.map(([, label]) => (
+                <th key={label} className="w-8 py-3 text-center font-semibold sm:w-12">
                   {label}
                 </th>
               ))}
-              <th className="w-24 py-3 text-center font-semibold">Шайбы</th>
-              <th className="w-16 py-3 pr-1 text-right font-semibold">Очки</th>
+              {COLS_DESKTOP.map(([, label]) => (
+                <th
+                  key={label}
+                  className="hidden w-12 py-3 text-center font-semibold md:table-cell"
+                >
+                  {label}
+                </th>
+              ))}
+              <th className="hidden w-20 py-3 text-center font-semibold sm:table-cell">
+                Шайбы
+              </th>
+              <th className="w-10 py-3 pr-1 text-right font-semibold sm:w-16">О</th>
             </tr>
           </thead>
           <tbody>
@@ -71,38 +86,46 @@ export default function StandingsBoard({
                   row.position <= playoffCut ? "bg-paper/0" : ""
                 }`}
               >
-                <td className="py-3.5 pl-1">
-                  <span className="flex items-center gap-2">
+                <td className="py-3 pl-1">
+                  <span className="flex items-center gap-1.5 sm:gap-2">
                     <span
                       className={`h-5 w-[2px] ${
-                        row.position <= playoffCut
-                          ? "bg-accent"
-                          : "bg-transparent"
+                        row.position <= playoffCut ? "bg-accent" : "bg-transparent"
                       }`}
                     />
-                    <span className="tnum text-[12.5px] font-semibold text-muted">
+                    <span className="tnum text-[12px] font-semibold text-muted sm:text-[12.5px]">
                       {row.position}
                     </span>
                   </span>
                 </td>
-                <td className="py-3.5">
-                  <span className="font-semibold text-ink-900">{row.team}</span>
-                  <span className="ml-2 text-[12px] text-muted-2">
+                <td className="py-3 pr-2">
+                  <span className="block font-semibold leading-tight text-ink-900">
+                    {row.team}
+                  </span>
+                  <span className="block text-[10.5px] text-muted-2 sm:ml-2 sm:inline sm:text-[12px]">
                     {row.city}
                   </span>
                 </td>
-                {COLS.map(([key]) => (
+                {COLS_BASE.map(([key]) => (
                   <td
                     key={key}
-                    className="tnum py-3.5 text-center text-ink-700"
+                    className="tnum py-3 text-center text-ink-700"
                   >
                     {row[key]}
                   </td>
                 ))}
-                <td className="tnum py-3.5 text-center text-ink-700">
+                {COLS_DESKTOP.map(([key]) => (
+                  <td
+                    key={key}
+                    className="tnum hidden py-3 text-center text-ink-700 md:table-cell"
+                  >
+                    {row[key]}
+                  </td>
+                ))}
+                <td className="tnum hidden py-3 text-center text-ink-700 sm:table-cell">
                   {row.goalsFor}&#8202;:&#8202;{row.goalsAgainst}
                 </td>
-                <td className="tnum py-3.5 pr-1 text-right text-[15px] font-bold text-ink-900">
+                <td className="tnum py-3 pr-1 text-right text-[14px] font-bold text-ink-900 sm:text-[15px]">
                   {row.points}
                 </td>
               </tr>
@@ -111,18 +134,19 @@ export default function StandingsBoard({
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-line pt-3 text-[11px] text-muted-2 sm:gap-x-6 sm:text-[11.5px] sm:pt-4">
+      {/* Легенда — адаптивная */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line pt-3 text-[10.5px] text-muted-2 sm:gap-x-6 sm:text-[11.5px] sm:pt-4">
         <span className="flex items-center gap-2">
           <span className="h-3 w-[2px] bg-accent" />
           зона плей-офф
         </span>
         <span>И — игры</span>
         <span>В — победы</span>
-        <span className="hidden sm:inline">ВО / ВБ — победы в овертайме / по буллитам</span>
-        <span className="sm:hidden">ВО/ВБ — в овертайме/буллитах</span>
-        <span className="hidden sm:inline">ПБ / ПО — поражения по буллитам / в овертайме</span>
-        <span className="sm:hidden">ПБ/ПО — по буллитам/овертайму</span>
         <span>П — поражения</span>
+        <span>О — очки</span>
+        <span className="hidden md:inline">ВО / ВБ — победы в овертайме / по буллитам</span>
+        <span className="hidden md:inline">ПБ / ПО — поражения по буллитам / в овертайме</span>
+        <span className="hidden sm:inline">Шайбы — забито:пропущено</span>
       </div>
     </div>
   );
