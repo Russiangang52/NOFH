@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Inter, Inter_Tight } from "next/font/google";
 import Header from "@/components/Header";
@@ -26,6 +26,13 @@ export const metadata: Metadata = {
   },
   description:
     "Официальный сайт Нижегородской областной федерации хоккея: новости, расписание матчей, турнирные таблицы, документы, «Золотая шайба», судейство и контакты.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
