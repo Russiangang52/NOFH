@@ -44,6 +44,8 @@ body {
   color: var(--color-ink-900);
   font-family: var(--font-sans);
   font-feature-settings: "cv05", "ss01";
+  /* Предотвращает горизонтальный скролл на мобилках */
+  overflow-x: hidden;
 }
 
 ::selection {
@@ -65,7 +67,12 @@ h4,
   width: 100%;
   max-width: 1280px;
   margin-inline: auto;
-  padding-inline: 1.5rem;
+  padding-inline: 1rem;
+}
+@media (min-width: 640px) {
+  .container-x {
+    padding-inline: 1.5rem;
+  }
 }
 @media (min-width: 1024px) {
   .container-x {
@@ -221,6 +228,24 @@ h4,
 
 .photo-grade {
   filter: saturate(0.92) contrast(1.04);
+}
+
+/* Скрывает скроллбар у горизонтальных лент (ScoreStrip, табы) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Snap-скролл для горизонтальных лент на мобильных */
+.snap-x-mobile {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.snap-x-mobile > * {
+  scroll-snap-align: start;
 }
 
 @media (prefers-reduced-motion: reduce) {
